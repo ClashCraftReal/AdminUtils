@@ -1,4 +1,4 @@
-package com.clashmod.adminutils;
+package com.lorenz.adminutils;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AdminUtils implements ModInitializer {
-	public static final String MOD_ID = "admin-utils";
+	public static final String MOD_ID = "adminutils";
 
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.

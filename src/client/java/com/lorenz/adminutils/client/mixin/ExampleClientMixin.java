@@ -1,4 +1,4 @@
-package com.clashmod.adminutils.client.mixin;
+package com.lorenz.adminutils.client.mixin;
 
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
