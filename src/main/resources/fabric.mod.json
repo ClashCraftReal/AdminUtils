@@ -12,7 +12,7 @@
 		"sources": "https://github.com/ClashCraftReal/AdminUtils"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/admin-utils/icon.png",
+	"icon": "assets/adminutils/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [

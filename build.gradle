@@ -37,6 +37,17 @@ dependencies {
 		implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 		implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	}
+
+	testImplementation platform("org.junit:junit-bom:5.13.4")
+	testImplementation "org.junit.jupiter:junit-jupiter"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+tasks.named('test', Test) {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "failed", "skipped"
+	}
 }
 
 def javaVersion = JavaVersion.toVersion(project.java_version)
@@ -52,13 +63,15 @@ def modLoaderVersion = project.loader_version.toString()
 def minecraftDependency = project.minecraft_dependency.toString()
 def javaTargetVersion = project.java_version.toString()
 def modId = project.mod_id.toString()
+def mixinsCompatLevel = project.mixins_compat_level.toString()
 
 processResources {
 	inputs.properties([
 		'version': modVersion,
 		'loader_version': modLoaderVersion,
 		'minecraft_dependency': minecraftDependency,
-		'java_version': javaTargetVersion
+		'java_version': javaTargetVersion,
+		'mixins_compat_level': mixinsCompatLevel
 	])
 
 	filesMatching("fabric.mod.json") {
@@ -67,6 +80,24 @@ processResources {
 			'loader_version': modLoaderVersion,
 			'minecraft_dependency': minecraftDependency,
 			'java_version': javaTargetVersion
+		)
+	}
+
+	filesMatching("*.mixins.json") {
+		expand(
+			'mixins_compat_level': mixinsCompatLevel
+		)
+	}
+}
+
+tasks.named('processClientResources', ProcessResources) {
+	inputs.properties([
+		'mixins_compat_level': mixinsCompatLevel
+	])
+
+	filesMatching("*.mixins.json") {
+		expand(
+			'mixins_compat_level': mixinsCompatLevel
 		)
 	}
 }
