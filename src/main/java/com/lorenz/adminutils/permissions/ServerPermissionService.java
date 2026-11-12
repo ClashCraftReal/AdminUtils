@@ -49,32 +49,46 @@ public final class ServerPermissionService implements PermissionService {
 
 	@Override
 	public boolean has(ServerPlayer player, AdminPermission permission) {
-		PermissionConfigIO.LoadedPermissions current = state;
-		if (!current.enabled() || player == null) {
+		if (player == null) {
 			return false;
 		}
+		return hasFor(state, player.getUUID(), isOperator(player), permission);
+	}
 
-		boolean operator = isOperator(player);
+	@Override
+	public PermissionSnapshot snapshot(ServerPlayer player) {
+		if (player == null) {
+			return PermissionSnapshot.EMPTY;
+		}
+		return snapshotFor(state, player.getUUID(), isOperator(player));
+	}
+
+	/**
+	 * Effective permission check for an already-resolved identity. Kept static and free
+	 * of Minecraft types so the bypass rules can be tested without a live player.
+	 */
+	static boolean hasFor(PermissionConfigIO.LoadedPermissions current, UUID uuid, boolean operator, AdminPermission permission) {
+		if (!current.enabled() || uuid == null || permission == null) {
+			return false;
+		}
 		if (permission.isAdminOnly() && !operator) {
 			return false;
 		}
 		if (current.opBypass() && operator) {
 			return true;
 		}
-		return grantedByConfig(current, player.getUUID(), permission);
+		return grantedByConfig(current, uuid, permission);
 	}
 
-	@Override
-	public PermissionSnapshot snapshot(ServerPlayer player) {
-		PermissionConfigIO.LoadedPermissions current = state;
-		if (player == null) {
-			return PermissionSnapshot.EMPTY;
-		}
-
-		boolean operator = isOperator(player);
+	/**
+	 * Builds the snapshot for an already-resolved identity. OP bypass adds
+	 * {@code admin.full} to the effective set only; the stored configuration is never
+	 * modified.
+	 */
+	static PermissionSnapshot snapshotFor(PermissionConfigIO.LoadedPermissions current, UUID uuid, boolean operator) {
 		Set<String> granted = new LinkedHashSet<>();
-		if (current.enabled()) {
-			PermissionEntry entry = current.players().get(player.getUUID());
+		if (current.enabled() && uuid != null) {
+			PermissionEntry entry = current.players().get(uuid);
 			if (entry != null) {
 				granted.addAll(entry.permissions());
 			}

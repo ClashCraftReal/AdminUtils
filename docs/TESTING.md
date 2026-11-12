@@ -57,15 +57,47 @@ Command: `./gradlew.bat :<target>:test` (JUnit 5, test-only dependency).
 
 | Target | tests | failures | skipped |
 |---|---|---|---|
-| 1.21.11 | 26 | 0 | 0 |
-| 26.1.2 | 26 | 0 | 0 |
-| 26.2 | 26 | 0 | 0 |
-| 26.3 | 26 | 0 | 0 |
+| 1.21.11 | 43 | 0 | 0 |
+| 26.1.2 | 43 | 0 | 0 |
+| 26.2 | 43 | 0 | 0 |
+| 26.3 | 43 | 0 | 0 |
 
 Coverage: permission identifiers and `admin.full` inheritance, snapshot `has()` and CSV
 round-trip, token-bucket burst/refill/isolation/forget, permission config creation,
 validation, duplicate handling, malformed JSON and newer-schema rejection, item storage
-persistence, removal, data-version rejection and JSON import/export round-trip.
+persistence, removal, data-version rejection and JSON import/export round-trip, plus
+`ServerPermissionServiceTest` (9 cases) for OP detection and the `opBypass` rule.
+
+## OP detection and GUI refresh (bug fix)
+
+Reported symptom: an operator saw `Operator: no` / `Permissions: none` in the menu.
+
+Root cause: the server side was already correct. `ServerPermissionService` resolved
+operator status from `player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)`
+and the snapshot carried `operator=true` with `admin.full`. The defect was client-side:
+`AdminScreen` built its widgets once in `init()` and `ClientSession.addListener` was never
+called, so a `PermissionSnapshotS2C` that arrived after the screen opened never rebuilt it.
+
+Fix: `AdminScreen` registers a `ClientSession` listener in `init()`, removes it in
+`removed()`, and calls `rebuildWidgets()` from the listener (guarded against re-entry and
+against firing while the screen is not active).
+
+Evidence (26.2 dedicated server on port 25566, `online-mode=false`, `ops.json` level 4 for
+`Tester`, `opBypass=true`, `authorizedPlayers: []`; dev client
+`--username Tester --quickPlayMultiplayer localhost:25566`, temporary auto-open hook since
+removed):
+
+```
+[19:47:41] Permission snapshot received: enabled=true operator=true opBypass=true granted=[admin.full]
+[19:47:41] VERIFY screen built: operator=true granted=[admin.full]
+[19:47:46] VERIFY rebuild: operator=true granted=[admin.full]
+[19:47:46] Permission snapshot received: enabled=true operator=true opBypass=true granted=[admin.full]
+```
+
+The `VERIFY rebuild` line is the listener firing on a fresh snapshot while the menu was
+open. Server-side OP detection and `opBypass` loading were confirmed on all four targets
+from the `Loaded permissions ... opBypass=true` and `Permission snapshot received ...
+operator=true` log lines.
 
 ## Client GUI initialization
 

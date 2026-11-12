@@ -30,6 +30,9 @@ import net.minecraft.network.chat.Component;
 public abstract class AdminScreen extends Screen {
 	private final NavigationSection section;
 	private final NotificationStack notifications = new NotificationStack();
+	private final Runnable sessionListener = this::onSessionChanged;
+	private boolean rebuilding;
+	private boolean active;
 	private AdminPage page;
 
 	protected AdminScreen(NavigationSection section) {
@@ -50,6 +53,33 @@ public abstract class AdminScreen extends Screen {
 		this.page = createPage();
 		buildNavigation();
 		this.page.init(this, contentX(), contentY(), contentWidth(), contentHeight());
+		this.active = true;
+		ClientSession.removeListener(this.sessionListener);
+		ClientSession.addListener(this.sessionListener);
+	}
+
+	@Override
+	public void removed() {
+		this.active = false;
+		ClientSession.removeListener(this.sessionListener);
+		super.removed();
+	}
+
+	/**
+	 * Rebuilds the widgets when the server pushes a new snapshot or the connection
+	 * state changes. Without this the menu keeps whatever snapshot existed when it was
+	 * opened, which is why an operator could see "Operator: no / Permissions: none".
+	 */
+	private void onSessionChanged() {
+		if (!this.active || this.rebuilding) {
+			return;
+		}
+		this.rebuilding = true;
+		try {
+			this.rebuildWidgets();
+		} finally {
+			this.rebuilding = false;
+		}
 	}
 
 	protected abstract AdminPage createPage();
