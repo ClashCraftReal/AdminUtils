@@ -82,22 +82,23 @@ Fix: `AdminScreen` registers a `ClientSession` listener in `init()`, removes it 
 `removed()`, and calls `rebuildWidgets()` from the listener (guarded against re-entry and
 against firing while the screen is not active).
 
-Evidence (26.2 dedicated server on port 25566, `online-mode=false`, `ops.json` level 4 for
+Evidence (26.3 dedicated server on port 25565, `online-mode=false`, `ops.json` level 4 for
 `Tester`, `opBypass=true`, `authorizedPlayers: []`; dev client
-`--username Tester --quickPlayMultiplayer localhost:25566`, temporary auto-open hook since
+`--username Tester --quickPlayMultiplayer localhost:25565`, temporary auto-open hook since
 removed):
 
 ```
-[19:47:41] Permission snapshot received: enabled=true operator=true opBypass=true granted=[admin.full]
-[19:47:41] VERIFY screen built: operator=true granted=[admin.full]
-[19:47:46] VERIFY rebuild: operator=true granted=[admin.full]
-[19:47:46] Permission snapshot received: enabled=true operator=true opBypass=true granted=[admin.full]
+[20:01:58] Permission snapshot received: enabled=true operator=true opBypass=true granted=[admin.full]
+[20:01:58] VERIFY screen built: operator=true granted=[admin.full]
+[20:01:58] VERIFY rebuild: operator=true granted=[admin.full]
+[20:01:58] Permission snapshot received: enabled=true operator=true opBypass=true granted=[admin.full]
 ```
 
-The `VERIFY rebuild` line is the listener firing on a fresh snapshot while the menu was
-open. Server-side OP detection and `opBypass` loading were confirmed on all four targets
-from the `Loaded permissions ... opBypass=true` and `Permission snapshot received ...
-operator=true` log lines.
+The same sequence was reproduced on 26.2 (port 25566) with identical values. The
+`VERIFY rebuild` line is the listener firing on a fresh snapshot while the menu was open.
+Server-side OP detection and `opBypass` loading were confirmed on all four targets from the
+`Loaded permissions ... opBypass=true` and `Permission snapshot received ... operator=true`
+log lines.
 
 ## Client GUI initialization
 
