@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
-	"id": "admin-utils",
-	"version": "1.0.0",
+	"id": "adminutils",
+	"version": "${version}",
 	"name": "Admin Utils",
 	"description": "Useful Admin Perms for Server Admins",
 	"authors": [
@@ -9,30 +9,30 @@
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/ClashCraftReal/AdminUtils"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/admin-utils/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.clashmod.adminutils.AdminUtils"
+			"com.lorenz.adminutils.AdminUtils"
 		],
 		"client": [
-			"com.clashmod.adminutils.client.AdminUtilsClient"
+			"com.lorenz.adminutils.client.AdminUtilsClient"
 		]
 	},
 	"mixins": [
-		"admin-utils.mixins.json",
+		"adminutils.mixins.json",
 		{
-			"config": "admin-utils.client.mixins.json",
+			"config": "adminutils.client.mixins.json",
 			"environment": "client"
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.20.1",
-		"minecraft": "~26.3",
-		"java": ">=25",
+		"fabricloader": ">=${loader_version}",
+		"minecraft": "${minecraft_dependency}",
+		"java": ">=${java_version}",
 		"fabric-api": "*"
 	}
 }

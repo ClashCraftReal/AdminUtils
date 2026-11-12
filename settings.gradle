@@ -9,5 +9,17 @@ pluginManagement {
 	}
 }
 
-// Should match your modid
-rootProject.name = 'admin-utils'
+plugins {
+	id 'dev.kikugie.stonecutter' version '0.10'
+}
+
+stonecutter {
+	kotlinController = false
+	centralScript = 'build.gradle'
+
+	create(rootProject) {
+		versions '1.21.11', '26.1.2', '26.2', '26.3'
+	}
+}
+
+rootProject.name = 'adminutils'

@@ -1,4 +1,4 @@
-package com.clashmod.adminutils.client;
+package com.lorenz.adminutils.client;
 
 import net.fabricmc.api.ClientModInitializer;
 
