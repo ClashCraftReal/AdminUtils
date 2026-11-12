@@ -1,0 +1,32 @@
+
+# Gradle
+.gradle/
+**/build/
+
+# Minecraft development instances
+**/run/
+
+# IDE files
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Logs and crash reports
+*.log
+logs/
+crash-reports/
+
+# Minecraft local data
+saves/
+screenshots/
+options.txt
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Compiled Java
+*.class
