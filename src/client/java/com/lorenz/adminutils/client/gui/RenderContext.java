@@ -57,4 +57,17 @@ public final class RenderContext {
 		fill(x, y, x + 1, y + height, color);
 		fill(x + width - 1, y, x + width, y + height, color);
 	}
+
+	/**
+	 * Restricts subsequent drawing to the given rectangle. {@code enableScissor} and
+	 * {@code disableScissor} exist on both graphics generations, so this needs no
+	 * version split.
+	 */
+	public void scissor(int x, int y, int width, int height) {
+		graphics.enableScissor(x, y, x + width, y + height);
+	}
+
+	public void resetScissor() {
+		graphics.disableScissor();
+	}
 }

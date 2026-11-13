@@ -7,6 +7,7 @@ import com.lorenz.adminutils.client.gui.page.PermissionsPage;
 import com.lorenz.adminutils.client.gui.page.PlayersPage;
 import com.lorenz.adminutils.client.gui.page.SettingsPage;
 import com.lorenz.adminutils.client.gui.page.ToolsPage;
+import com.lorenz.adminutils.client.net.ClientNetworkHandler;
 
 /**
  * The single AdminUtils screen. Navigation swaps the active {@link AdminPage} and
@@ -18,7 +19,9 @@ public final class AdminUtilsMenuScreen extends AdminScreen {
 	}
 
 	public static void open(NavigationSection section) {
+		AdminScreen.beginNavigation();
 		GuiCompat.openScreen(new AdminUtilsMenuScreen(section == null ? NavigationSection.HOME : section));
+		ClientNetworkHandler.requestPermissions();
 	}
 
 	@Override

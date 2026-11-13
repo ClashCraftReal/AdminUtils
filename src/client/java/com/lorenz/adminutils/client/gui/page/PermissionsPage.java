@@ -37,24 +37,25 @@ public final class PermissionsPage extends AdminPage {
 		line = row(context, font, x, line, "Server enabled", snapshot.enabled() ? "yes" : "no");
 		line = row(context, font, x, line, "OP bypass", snapshot.opBypass() ? "yes" : "no");
 		line = row(context, font, x, line, "Operator", snapshot.operator() ? "yes" : "no");
-		line += 8;
+		line += GuiTheme.sectionGap();
 
 		for (AdminPermission permission : AdminPermission.values()) {
 			boolean granted = snapshot.has(permission);
 			int color = granted ? GuiTheme.SUCCESS : GuiTheme.DISABLED;
 			context.text(font, Component.literal(granted ? "[x]" : "[ ]"), x, line, color);
 			context.text(font, Component.literal(permission.id()), x + 26, line, granted ? GuiTheme.TEXT : GuiTheme.TEXT_MUTED);
-			line += 11;
+			line += GuiTheme.rowHeight();
 		}
 
-		line += 6;
+		line += GuiTheme.sectionGap();
 		context.text(font, Component.literal("admin.full implies every other permission."), x, line, GuiTheme.TEXT_MUTED);
-		context.text(font, Component.literal("disguise.use additionally requires operator status."), x, line + 11, GuiTheme.TEXT_MUTED);
+		context.text(font, Component.literal("disguise.use additionally requires operator status."), x,
+			line + GuiTheme.rowHeight(), GuiTheme.TEXT_MUTED);
 	}
 
 	private static int row(RenderContext context, Font font, int x, int y, String label, String value) {
 		context.text(font, Component.literal(label), x, y, GuiTheme.TEXT_MUTED);
 		context.text(font, Component.literal(value), x + 96, y, GuiTheme.TEXT);
-		return y + 11;
+		return y + GuiTheme.rowHeight();
 	}
 }

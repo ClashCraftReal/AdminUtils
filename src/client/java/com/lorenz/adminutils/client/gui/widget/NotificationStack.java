@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.lorenz.adminutils.client.gui.GuiAnimation;
 import com.lorenz.adminutils.client.gui.GuiTheme;
 import com.lorenz.adminutils.client.gui.RenderContext;
 
@@ -13,12 +14,23 @@ import net.minecraft.network.chat.Component;
 /**
  * Transient success/error/info toasts drawn in the top-right corner. Entries expire on
  * their own so the menu never accumulates stale feedback.
+ *
+ * <p>The menu uses {@link #shared()} so feedback survives a section change: navigating
+ * replaces the screen object, and a per-screen stack would drop every pending toast.
  */
 public final class NotificationStack {
 	private static final long LIFETIME_MILLIS = 5000L;
 	private static final int LINE_HEIGHT = 12;
+	private static final int TEXT_INSET = 6;
+	private static final String ELLIPSIS = "...";
+
+	private static final NotificationStack SHARED = new NotificationStack();
 
 	private final List<Entry> entries = new ArrayList<>();
+
+	public static NotificationStack shared() {
+		return SHARED;
+	}
 
 	public void success(String message) {
 		push(Kind.SUCCESS, message);
@@ -61,18 +73,39 @@ public final class NotificationStack {
 			int color = switch (entry.kind()) {
 				case SUCCESS -> GuiTheme.SUCCESS;
 				case ERROR -> GuiTheme.ERROR;
-				case INFO -> GuiTheme.TEXT_MUTED;
+				case INFO -> GuiTheme.accent();
 			};
+			float reveal = GuiAnimation.progress(entry.createdAtMillis(), GuiAnimation.FAST_MILLIS);
 
 			int textWidth = font.width(entry.message());
-			int boxWidth = Math.min(maxWidth, textWidth + 12);
+			int boxWidth = Math.min(maxWidth, textWidth + TEXT_INSET * 2);
 			int x = right - boxWidth;
 
-			context.fill(x, y, right, y + LINE_HEIGHT, GuiTheme.PANEL);
-			context.outline(x, y, boxWidth, LINE_HEIGHT, color);
-			context.text(font, Component.literal(entry.message()), x + 6, y + 2, color);
+			context.fill(x, y, right, y + LINE_HEIGHT, GuiAnimation.withAlpha(GuiTheme.PANEL, reveal));
+			context.outline(x, y, boxWidth, LINE_HEIGHT, GuiAnimation.withAlpha(color, reveal));
+			context.text(font, Component.literal(fit(font, entry.message(), boxWidth - TEXT_INSET * 2)),
+				x + TEXT_INSET, y + 2, GuiAnimation.withAlpha(color, reveal));
 			y += LINE_HEIGHT + 3;
 		}
+	}
+
+	/**
+	 * Shortens a message so it cannot draw past the toast border. The box is capped at
+	 * {@code maxWidth}, so an untruncated string would otherwise overflow it.
+	 */
+	private static String fit(Font font, String message, int limit) {
+		if (limit <= 0) {
+			return "";
+		}
+		String fitted = font.plainSubstrByWidth(message, limit);
+		if (fitted.length() == message.length()) {
+			return fitted;
+		}
+		int ellipsisWidth = font.width(ELLIPSIS);
+		if (limit <= ellipsisWidth) {
+			return fitted;
+		}
+		return font.plainSubstrByWidth(message, limit - ellipsisWidth) + ELLIPSIS;
 	}
 
 	private enum Kind {
