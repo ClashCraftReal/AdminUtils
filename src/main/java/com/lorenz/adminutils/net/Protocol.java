@@ -10,7 +10,7 @@ import net.minecraft.resources.Identifier;
  * during the handshake instead of failing later with a decode error.
  */
 public final class Protocol {
-	public static final int VERSION = 1;
+	public static final int VERSION = 2;
 
 	public static final int MAX_REQUEST_ID_LENGTH = 64;
 	public static final int MAX_ACTION_ID_LENGTH = 64;

@@ -14,8 +14,10 @@ import com.lorenz.adminutils.client.net.ClientSession;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 /**
@@ -114,6 +116,11 @@ public abstract class AdminScreen extends Screen {
 	@Override
 	public void tick() {
 		super.tick();
+		// Page state such as the online player list changes without a widget rebuild, so
+		// it is refreshed every tick rather than only when a snapshot arrives.
+		if (this.active && this.page != null) {
+			this.page.tick();
+		}
 		if (!this.pendingRefresh) {
 			return;
 		}
@@ -133,6 +140,36 @@ public abstract class AdminScreen extends Screen {
 
 	public Button addButton(Button button) {
 		return this.addRenderableWidget(button);
+	}
+
+	/**
+	 * Registers any widget the page owns. Widgets are cleared by
+	 * {@code rebuildWidgets()} before {@code init()} runs again, so pages may create
+	 * them unconditionally in {@link AdminPage#init}.
+	 */
+	public <T extends AbstractWidget> T addWidget(T widget) {
+		return this.addRenderableWidget(widget);
+	}
+
+	/**
+	 * Widgets get the click first; anything they decline is offered to the page so a
+	 * custom list can handle selection without becoming a widget.
+	 */
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+		if (super.mouseClicked(event, doubled)) {
+			return true;
+		}
+		return this.active && this.page != null && this.page.mouseClicked(event.x(), event.y(), event.button());
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
+		if (super.mouseScrolled(mouseX, mouseY, horizontal, vertical)) {
+			return true;
+		}
+		return this.active && this.page != null
+			&& this.page.mouseScrolled(mouseX, mouseY, horizontal, vertical);
 	}
 
 	private void buildNavigation() {

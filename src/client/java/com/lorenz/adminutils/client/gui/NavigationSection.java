@@ -14,7 +14,7 @@ import com.lorenz.adminutils.api.AdminPermission;
 public enum NavigationSection {
 	HOME("Home", AdminPermission.GUI_OPEN, false, true),
 	ITEMS("Items", AdminPermission.GUI_OPEN, true, true),
-	PLAYERS("Players", AdminPermission.PLAYERS_VIEW, true, false),
+	PLAYERS("Players", AdminPermission.PLAYERS_VIEW, false, false),
 	TOOLS("Tools", AdminPermission.ADMIN_FULL, true, false),
 	PERMISSIONS("Permissions", AdminPermission.GUI_OPEN, false, true),
 	SETTINGS("Settings", AdminPermission.GUI_OPEN, false, true);

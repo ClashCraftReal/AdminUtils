@@ -17,9 +17,48 @@ class AdminPermissionTest {
 		assertEquals("items.give", AdminPermission.ITEMS_GIVE.id());
 		assertEquals("players.view", AdminPermission.PLAYERS_VIEW.id());
 		assertEquals("players.manage", AdminPermission.PLAYERS_MANAGE.id());
+		assertEquals("players.inventory.view", AdminPermission.PLAYERS_INVENTORY_VIEW.id());
+		assertEquals("players.inventory.edit", AdminPermission.PLAYERS_INVENTORY_EDIT.id());
+		assertEquals("players.enderchest.view", AdminPermission.PLAYERS_ENDERCHEST_VIEW.id());
+		assertEquals("players.enderchest.edit", AdminPermission.PLAYERS_ENDERCHEST_EDIT.id());
 		assertEquals("disguise.use", AdminPermission.DISGUISE_USE.id());
 		assertEquals("admin.full", AdminPermission.ADMIN_FULL.id());
-		assertEquals(8, AdminPermission.ids().size());
+		assertEquals(12, AdminPermission.ids().size());
+	}
+
+	@Test
+	void resolvesEveryPlayerManagementIdentifier() {
+		assertEquals(AdminPermission.PLAYERS_INVENTORY_VIEW, AdminPermission.byId("players.inventory.view").orElseThrow());
+		assertEquals(AdminPermission.PLAYERS_INVENTORY_EDIT, AdminPermission.byId("players.inventory.edit").orElseThrow());
+		assertEquals(AdminPermission.PLAYERS_ENDERCHEST_VIEW, AdminPermission.byId("players.enderchest.view").orElseThrow());
+		assertEquals(AdminPermission.PLAYERS_ENDERCHEST_EDIT, AdminPermission.byId("players.enderchest.edit").orElseThrow());
+	}
+
+	@Test
+	void adminFullImpliesPlayerManagementPermissions() {
+		assertTrue(AdminPermission.ADMIN_FULL.implies(AdminPermission.PLAYERS_INVENTORY_VIEW));
+		assertTrue(AdminPermission.ADMIN_FULL.implies(AdminPermission.PLAYERS_INVENTORY_EDIT));
+		assertTrue(AdminPermission.ADMIN_FULL.implies(AdminPermission.PLAYERS_ENDERCHEST_VIEW));
+		assertTrue(AdminPermission.ADMIN_FULL.implies(AdminPermission.PLAYERS_ENDERCHEST_EDIT));
+	}
+
+	@Test
+	void editPermissionsDoNotImplyViewPermissions() {
+		assertFalse(AdminPermission.PLAYERS_INVENTORY_EDIT.implies(AdminPermission.PLAYERS_INVENTORY_VIEW));
+		assertFalse(AdminPermission.PLAYERS_ENDERCHEST_EDIT.implies(AdminPermission.PLAYERS_ENDERCHEST_VIEW));
+		assertFalse(AdminPermission.PLAYERS_INVENTORY_VIEW.implies(AdminPermission.PLAYERS_INVENTORY_EDIT));
+		assertFalse(AdminPermission.PLAYERS_ENDERCHEST_VIEW.implies(AdminPermission.PLAYERS_ENDERCHEST_EDIT));
+		assertFalse(AdminPermission.PLAYERS_INVENTORY_VIEW.implies(AdminPermission.PLAYERS_ENDERCHEST_VIEW));
+		assertTrue(AdminPermission.PLAYERS_INVENTORY_EDIT.implies(AdminPermission.PLAYERS_INVENTORY_EDIT));
+	}
+
+	@Test
+	void playerManagementPermissionsAreNotAdminOnly() {
+		assertFalse(AdminPermission.PLAYERS_INVENTORY_VIEW.isAdminOnly());
+		assertFalse(AdminPermission.PLAYERS_INVENTORY_EDIT.isAdminOnly());
+		assertFalse(AdminPermission.PLAYERS_ENDERCHEST_VIEW.isAdminOnly());
+		assertFalse(AdminPermission.PLAYERS_ENDERCHEST_EDIT.isAdminOnly());
+		assertFalse(AdminPermission.PLAYERS_MANAGE.isAdminOnly());
 	}
 
 	@Test
@@ -42,6 +81,9 @@ class AdminPermissionTest {
 		assertTrue(AdminPermission.DISGUISE_USE.isAdminOnly());
 		assertFalse(AdminPermission.ADMIN_FULL.isAdminOnly());
 		assertFalse(AdminPermission.GUI_OPEN.isAdminOnly());
+		assertEquals(Set.of(AdminPermission.DISGUISE_USE),
+			java.util.Arrays.stream(AdminPermission.values()).filter(AdminPermission::isAdminOnly)
+				.collect(java.util.stream.Collectors.toSet()));
 	}
 
 	@Test

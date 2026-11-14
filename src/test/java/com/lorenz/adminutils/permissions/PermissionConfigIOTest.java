@@ -119,6 +119,78 @@ class PermissionConfigIOTest {
 		assertEquals(List.of("Duplicate entry for " + AUTHORIZED + "; the last one wins"), loaded.warnings());
 	}
 
+	@Test
+	void acceptsPlayerManagementPermissions(@TempDir Path directory) throws Exception {
+		Path file = write(directory, """
+			{
+			  "schemaVersion": 1,
+			  "enabled": true,
+			  "opBypass": false,
+			  "authorizedPlayers": [
+			    {
+			      "uuid": "11111111-2222-3333-4444-555555555555",
+			      "name": "Inspector",
+			      "permissions": [
+			        "players.view",
+			        "players.inventory.view",
+			        "players.inventory.edit",
+			        "players.enderchest.view",
+			        "players.enderchest.edit"
+			      ]
+			    }
+			  ]
+			}
+			""");
+
+		PermissionConfigIO.LoadedPermissions loaded = PermissionConfigIO.load(file);
+
+		assertEquals(1, loaded.authorizedCount());
+		assertTrue(loaded.warnings().isEmpty());
+		assertEquals(Set.of(
+			"players.view",
+			"players.inventory.view",
+			"players.inventory.edit",
+			"players.enderchest.view",
+			"players.enderchest.edit"), loaded.players().get(AUTHORIZED).permissions());
+	}
+
+	@Test
+	void playerManagementPermissionsAreNotGrantedImplicitly(@TempDir Path directory) throws Exception {
+		Path file = write(directory, """
+			{
+			  "schemaVersion": 1,
+			  "authorizedPlayers": [
+			    { "uuid": "11111111-2222-3333-4444-555555555555", "name": "Viewer", "permissions": ["players.view"] }
+			  ]
+			}
+			""");
+
+		PermissionConfigIO.LoadedPermissions loaded = PermissionConfigIO.load(file);
+
+		assertEquals(Set.of("players.view"), loaded.players().get(AUTHORIZED).permissions());
+		assertFalse(loaded.players().get(AUTHORIZED).permissions().contains("players.inventory.view"));
+		assertFalse(loaded.players().get(AUTHORIZED).permissions().contains("players.inventory.edit"));
+		assertFalse(loaded.players().get(AUTHORIZED).permissions().contains("players.enderchest.view"));
+		assertFalse(loaded.players().get(AUTHORIZED).permissions().contains("players.enderchest.edit"));
+	}
+
+	@Test
+	void keepsSchemaVersionOneForTheAdditivePermissionSet(@TempDir Path directory) throws Exception {
+		Path file = write(directory, """
+			{
+			  "schemaVersion": 1,
+			  "authorizedPlayers": [
+			    { "uuid": "11111111-2222-3333-4444-555555555555", "name": "Legacy", "permissions": ["gui.open", "players.view"] }
+			  ]
+			}
+			""");
+
+		PermissionConfigIO.LoadedPermissions loaded = PermissionConfigIO.load(file);
+
+		assertEquals(Set.of("gui.open", "players.view"), loaded.players().get(AUTHORIZED).permissions());
+		assertTrue(loaded.warnings().isEmpty());
+	}
+
 	private static Path write(Path directory, String json) throws IOException {
 		Path file = directory.resolve("permissions.json");
 		Files.writeString(file, json, StandardCharsets.UTF_8);

@@ -7,6 +7,11 @@ import com.lorenz.adminutils.net.payload.HelloC2S;
 import com.lorenz.adminutils.net.payload.HelloS2C;
 import com.lorenz.adminutils.net.payload.PermissionQueryC2S;
 import com.lorenz.adminutils.net.payload.PermissionSnapshotS2C;
+import com.lorenz.adminutils.net.payload.PlayerEnderChestRequestC2S;
+import com.lorenz.adminutils.net.payload.PlayerEnderChestS2C;
+import com.lorenz.adminutils.net.payload.PlayerInventoryChunkS2C;
+import com.lorenz.adminutils.net.payload.PlayerInventoryRequestC2S;
+import com.lorenz.adminutils.net.payload.PlayerInventoryS2C;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
@@ -19,7 +24,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
  * themselves are identical on both, so only this registration block is duplicated.
  */
 public final class PayloadRegistry {
-	private static final int PAYLOAD_COUNT = 6;
+	private static final int PAYLOAD_COUNT = 11;
 	private static boolean registered;
 
 	private PayloadRegistry() {
@@ -35,18 +40,28 @@ public final class PayloadRegistry {
 		/*PayloadTypeRegistry.playC2S().register(HelloC2S.TYPE, HelloC2S.STREAM_CODEC);
 		PayloadTypeRegistry.playC2S().register(PermissionQueryC2S.TYPE, PermissionQueryC2S.STREAM_CODEC);
 		PayloadTypeRegistry.playC2S().register(ActionRequestC2S.TYPE, ActionRequestC2S.STREAM_CODEC);
+		PayloadTypeRegistry.playC2S().register(PlayerInventoryRequestC2S.TYPE, PlayerInventoryRequestC2S.STREAM_CODEC);
+		PayloadTypeRegistry.playC2S().register(PlayerEnderChestRequestC2S.TYPE, PlayerEnderChestRequestC2S.STREAM_CODEC);
 
 		PayloadTypeRegistry.playS2C().register(HelloS2C.TYPE, HelloS2C.STREAM_CODEC);
 		PayloadTypeRegistry.playS2C().register(PermissionSnapshotS2C.TYPE, PermissionSnapshotS2C.STREAM_CODEC);
 		PayloadTypeRegistry.playS2C().register(ActionResponseS2C.TYPE, ActionResponseS2C.STREAM_CODEC);
+		PayloadTypeRegistry.playS2C().register(PlayerInventoryS2C.TYPE, PlayerInventoryS2C.STREAM_CODEC);
+		PayloadTypeRegistry.playS2C().register(PlayerInventoryChunkS2C.TYPE, PlayerInventoryChunkS2C.STREAM_CODEC);
+		PayloadTypeRegistry.playS2C().register(PlayerEnderChestS2C.TYPE, PlayerEnderChestS2C.STREAM_CODEC);
 		*///?} else {
 		PayloadTypeRegistry.serverboundPlay().register(HelloC2S.TYPE, HelloC2S.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(PermissionQueryC2S.TYPE, PermissionQueryC2S.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ActionRequestC2S.TYPE, ActionRequestC2S.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(PlayerInventoryRequestC2S.TYPE, PlayerInventoryRequestC2S.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(PlayerEnderChestRequestC2S.TYPE, PlayerEnderChestRequestC2S.STREAM_CODEC);
 
 		PayloadTypeRegistry.clientboundPlay().register(HelloS2C.TYPE, HelloS2C.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(PermissionSnapshotS2C.TYPE, PermissionSnapshotS2C.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(ActionResponseS2C.TYPE, ActionResponseS2C.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(PlayerInventoryS2C.TYPE, PlayerInventoryS2C.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(PlayerInventoryChunkS2C.TYPE, PlayerInventoryChunkS2C.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(PlayerEnderChestS2C.TYPE, PlayerEnderChestS2C.STREAM_CODEC);
 		//?}
 
 		AdminUtils.LOGGER.info("Registered {} payload types for protocol v{}", PAYLOAD_COUNT, Protocol.VERSION);

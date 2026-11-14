@@ -19,6 +19,10 @@ public enum AdminPermission {
 	ITEMS_GIVE("items.give"),
 	PLAYERS_VIEW("players.view"),
 	PLAYERS_MANAGE("players.manage"),
+	PLAYERS_INVENTORY_VIEW("players.inventory.view"),
+	PLAYERS_INVENTORY_EDIT("players.inventory.edit"),
+	PLAYERS_ENDERCHEST_VIEW("players.enderchest.view"),
+	PLAYERS_ENDERCHEST_EDIT("players.enderchest.edit"),
 	DISGUISE_USE("disguise.use"),
 	ADMIN_FULL("admin.full");
 

@@ -14,6 +14,12 @@ public enum ErrorCode {
 	INVALID_REQUEST("invalid_request"),
 	PERMISSION_DENIED("permission_denied"),
 	UNSUPPORTED_ACTION("unsupported_action"),
+	CONFLICT("conflict"),
+	TARGET_UNAVAILABLE("target_unavailable"),
+	INVALID_SLOT("invalid_slot"),
+	INVALID_ITEM("invalid_item"),
+	SNAPSHOT_TOO_LARGE("snapshot_too_large"),
+	TIMEOUT("timeout"),
 	INTERNAL_ERROR("internal_error");
 
 	private final String id;

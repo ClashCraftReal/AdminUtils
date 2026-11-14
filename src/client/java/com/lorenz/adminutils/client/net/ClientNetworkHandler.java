@@ -8,6 +8,7 @@ import com.lorenz.adminutils.net.payload.HelloC2S;
 import com.lorenz.adminutils.net.payload.HelloS2C;
 import com.lorenz.adminutils.net.payload.PermissionQueryC2S;
 import com.lorenz.adminutils.net.payload.PermissionSnapshotS2C;
+import com.lorenz.adminutils.net.payload.PlayerInventoryChunkS2C;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -32,16 +33,30 @@ public final class ClientNetworkHandler {
 			}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ActionResponseS2C.TYPE, (payload, context) ->
-			context.client().execute(() -> ClientSession.dispatchResponse(payload)));
+			context.client().execute(() -> {
+				ClientSession.dispatchResponse(payload);
+				// A failed container request answers on the action channel, so the
+				// inventory view learns about denials and unavailable targets here.
+				PlayerInventoryStore.shared().onError(payload.requestId(), errorCodeOf(payload));
+			}));
+
+		ClientPlayNetworking.registerGlobalReceiver(PlayerInventoryChunkS2C.TYPE, (payload, context) ->
+			context.client().execute(() -> PlayerInventoryStore.shared().onChunk(payload)));
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+			// A new connection must not inherit a request or an error from the previous
+			// session; otherwise the first inventory view of a login can stay stuck.
+			PlayerInventoryStore.shared().clear();
 			ClientSession.update(ConnectionState.HANDSHAKING, "Negotiating protocol");
 			ClientPlayNetworking.send(new HelloC2S(Protocol.VERSION, AdminUtils.modVersion()));
 		});
 
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientSession.reset());
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			ClientSession.reset();
+			PlayerInventoryStore.shared().clear();
+		});
 
-		AdminUtils.LOGGER.info("Registered client receivers for 3 inbound payload types");
+		AdminUtils.LOGGER.info("Registered client receivers for 4 inbound payload types");
 	}
 
 	public static void requestPermissions() {
